@@ -292,6 +292,7 @@ class Event(BaseModel):
     icu_ctl: float | None = Field(None, alias="icu_ctl")
     joules: int | None = None
     joules_above_ftp: int | None = Field(None, alias="joules_above_ftp")
+    carbs_per_hour: int | None = None
     color: str | None = None
     training_availability: str | None = None
     show_as_note: bool | None = None

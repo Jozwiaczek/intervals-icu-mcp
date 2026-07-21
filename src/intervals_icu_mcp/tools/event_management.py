@@ -278,6 +278,8 @@ def _event_to_dict(event: Event) -> dict[str, Any]:
         result["distance_meters"] = event.distance
     if event.icu_training_load:
         result["training_load"] = event.icu_training_load
+    if event.carbs_per_hour:
+        result["carbs_per_hour_g"] = event.carbs_per_hour
     if event.training_availability:
         result["training_availability"] = event.training_availability
     if event.color:
@@ -318,6 +320,9 @@ async def create_event(
     duration_seconds: Annotated[int | None, "Planned duration in seconds"] = None,
     distance_meters: Annotated[float | None, "Planned distance in meters"] = None,
     training_load: Annotated[int | None, "Planned training load"] = None,
+    carbs_per_hour: Annotated[
+        int | None, "Planned carbohydrate intake in grams per hour (fueling target, CHO/h)"
+    ] = None,
     end_date: Annotated[
         str | None,
         "End date in YYYY-MM-DD format. Use for ranged categories (INJURED, "
@@ -410,6 +415,8 @@ async def create_event(
             event_data["distance"] = distance_meters
         if training_load:
             event_data["icu_training_load"] = training_load
+        if carbs_per_hour is not None:
+            event_data["carbs_per_hour"] = carbs_per_hour
         if end_date is not None:
             event_data["end_date_local"] = end_date
         if normalized_availability is not None:
@@ -449,6 +456,9 @@ async def update_event(
     duration_seconds: Annotated[int | None, "Updated duration in seconds"] = None,
     distance_meters: Annotated[float | None, "Updated distance in meters"] = None,
     training_load: Annotated[int | None, "Updated training load"] = None,
+    carbs_per_hour: Annotated[
+        int | None, "Updated carbohydrate intake in grams per hour (fueling target, CHO/h)"
+    ] = None,
     end_date: Annotated[str | None, "Updated end date (YYYY-MM-DD)"] = None,
     training_availability: Annotated[
         str | None, "Updated training availability: NORMAL, LIMITED, or UNAVAILABLE"
@@ -515,6 +525,8 @@ async def update_event(
             event_data["distance"] = distance_meters
         if training_load is not None:
             event_data["icu_training_load"] = training_load
+        if carbs_per_hour is not None:
+            event_data["carbs_per_hour"] = carbs_per_hour
         if end_date is not None:
             event_data["end_date_local"] = end_date
         if normalized_availability is not None:

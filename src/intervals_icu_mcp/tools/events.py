@@ -295,6 +295,8 @@ async def get_event(
                 metrics["joules"] = event.joules
             if event.joules_above_ftp:
                 metrics["joules_above_ftp"] = event.joules_above_ftp
+            if event.carbs_per_hour:
+                metrics["carbs_per_hour_g"] = event.carbs_per_hour
 
             if metrics:
                 event_data["metrics"] = metrics
