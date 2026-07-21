@@ -382,9 +382,14 @@ async def update_activity(
     commute: Annotated[bool | None, "Mark as commute"] = None,
     feel: Annotated[int | None, "How you felt (1-5 scale)"] = None,
     perceived_exertion: Annotated[int | None, "RPE rating (1-10 scale)"] = None,
+    tags: Annotated[
+        list[str] | None,
+        "Tags for the activity (e.g., ['Long Run', 'Race']). Replaces the "
+        "existing tag list — pass the full desired set, or [] to clear.",
+    ] = None,
     ctx: Context | None = None,
 ) -> str:
-    """Update an existing activity's metadata (name, type, trainer flag, RPE, feel, etc.).
+    """Update an existing activity's metadata (name, type, trainer flag, RPE, feel, tags, etc.).
 
     Only fields you pass are sent; everything else stays unchanged.
     """
@@ -409,6 +414,8 @@ async def update_activity(
             activity_data["feel"] = feel
         if perceived_exertion is not None:
             activity_data["perceived_exertion"] = perceived_exertion
+        if tags is not None:
+            activity_data["tags"] = tags
 
         if not activity_data:
             return ResponseBuilder.build_error_response(
@@ -436,6 +443,8 @@ async def update_activity(
                 result_data["feel"] = activity.feel
             if activity.perceived_exertion is not None:
                 result_data["rpe"] = activity.perceived_exertion
+            if activity.tags is not None:
+                result_data["tags"] = activity.tags
 
             return ResponseBuilder.build_response(
                 data=result_data,

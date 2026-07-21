@@ -101,6 +101,34 @@ class TestEventTools:
         assert response["data"]["name"] == "Updated Workout"
         assert response["metadata"]["message"] == "Successfully updated event 1001"
 
+    async def test_update_event_sets_tags(self, mock_config, respx_mock):
+        """Tags are sent to the API and echoed in the response."""
+        mock_ctx = MagicMock()
+        mock_ctx.get_state = AsyncMock(return_value=mock_config)
+
+        route = respx_mock.put("/athlete/i123456/events/1001").mock(
+            return_value=Response(
+                200,
+                json={
+                    "id": 1001,
+                    "name": "Progressive Long Run",
+                    "start_date_local": "2026-07-26",
+                    "category": "WORKOUT",
+                    "tags": ["Long Run"],
+                },
+            )
+        )
+
+        result = await update_event(
+            event_id=1001,
+            tags=["Long Run"],
+            ctx=mock_ctx,
+        )
+
+        response = json.loads(result)
+        assert json.loads(route.calls.last.request.content) == {"tags": ["Long Run"]}
+        assert response["data"]["tags"] == ["Long Run"]
+
     async def test_delete_event_safe_allows_future(self, mock_config, respx_mock):
         """Safe mode (default): future event is fetched, then deleted."""
         mock_ctx = MagicMock()

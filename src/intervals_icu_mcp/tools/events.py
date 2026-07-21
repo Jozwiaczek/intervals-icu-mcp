@@ -213,6 +213,9 @@ async def get_upcoming_workouts(
                 if workout.type:
                     workout_item["type"] = workout.type
 
+                if workout.tags:
+                    workout_item["tags"] = workout.tags
+
                 # Workout metrics
                 if workout.distance or workout.distance_target:
                     distance = workout.distance or workout.distance_target
@@ -278,6 +281,8 @@ async def get_event(
                 event_data["description"] = event.description
             if event.type:
                 event_data["type"] = event.type
+            if event.tags:
+                event_data["tags"] = event.tags
 
             # Workout/Event metrics
             metrics: dict[str, Any] = {}
