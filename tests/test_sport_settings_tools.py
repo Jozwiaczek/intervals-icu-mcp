@@ -25,7 +25,7 @@ RUN_SETTINGS = {
     "id": 2,
     "types": ["Run"],
     "lthr": 170,
-    "threshold_pace": 4.5,
+    "threshold_pace": 1000 / 270,  # m/s for 4:30/km (API returns run pace as speed)
     "pace_units": "MINS_KM",
     "pace_load_type": "RUN",
 }
@@ -220,7 +220,8 @@ class TestSportSettingsTools:
                     "id": 7,
                     "types": ["Run"],
                     "lthr": 170,
-                    "threshold_pace": 4.5,
+                    # API echoes the stored value back as speed in m/s
+                    "threshold_pace": 1000 / 270,
                     "pace_units": "MINS_KM",
                     "pace_load_type": "RUN",
                 },

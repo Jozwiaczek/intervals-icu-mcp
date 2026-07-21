@@ -290,6 +290,70 @@ class TestSportSettingsModelMapping:
         assert settings.swim_threshold == pytest.approx(1.5)
         assert settings.pace_threshold is None
 
+    def test_sport_settings_maps_run_threshold_from_mps(self):
+        from intervals_icu_mcp.models import SportSettings
+
+        # API returns run threshold as SPEED (m/s) too; 4:17/km == 1000/257 m/s.
+        settings = SportSettings.model_validate(
+            {
+                "id": 2,
+                "types": ["Run"],
+                "lthr": 181,
+                "threshold_pace": 1000 / 257,
+                "pace_units": "MINS_KM",
+                "pace_load_type": "RUN",
+            }
+        )
+
+        assert settings.pace_threshold == pytest.approx(257 / 60)
+        assert settings.swim_threshold is None
+
+    def test_sport_settings_zones_parse_and_format(self):
+        from intervals_icu_mcp.models import SportSettings
+        from intervals_icu_mcp.sport_settings_format import format_sport_settings_entry
+
+        settings = SportSettings.model_validate(
+            {
+                "id": 2,
+                "types": ["Run"],
+                "lthr": 181,
+                "max_hr": 195,
+                "threshold_pace": 1000 / 257,  # 4:17/km
+                "pace_units": "MINS_KM",
+                "pace_load_type": "RUN",
+                "hr_zones": [145, 168, 174, 181, 185, 190, 195],
+                "hr_zone_names": [
+                    "Recovery",
+                    "Aerobic",
+                    "Tempo",
+                    "SubThreshold",
+                    "SuperThreshold",
+                    "Aerobic Capacity",
+                    "Anaerobic",
+                ],
+                "pace_zones": [57.1, 77.9, 88.6, 100.0, 103.4, 111.5, 999.0],
+                "pace_zone_names": [
+                    "Zone 1",
+                    "Zone 2",
+                    "Zone 3",
+                    "Zone 4",
+                    "Zone 5a",
+                    "Zone 5b",
+                    "Zone 5c",
+                ],
+            }
+        )
+
+        entry = format_sport_settings_entry(settings)
+        assert entry["pace_threshold"] == "4:17 /km"
+        assert entry["max_hr_bpm"] == 195
+        assert entry["hr_zones"][0] == "Z1 Recovery: 0-145 bpm"
+        assert entry["hr_zones"][1] == "Z2 Aerobic: 146-168 bpm"
+        assert entry["hr_zones"][6] == "Z7 Anaerobic: 191-195 bpm"
+        assert entry["pace_zones"][0] == "Z1 Zone 1: 0-57.1% (7:30/km +)"
+        assert entry["pace_zones"][3] == "Z4 Zone 4: 88.6-100% (4:17-4:50/km)"
+        assert entry["pace_zones"][6] == "Z7 Zone 5c: 111.5%+ (faster than 3:50/km)"
+
     def test_build_sport_settings_api_payload_swim_sends_mps(self):
         from intervals_icu_mcp.sport_settings_format import build_sport_settings_api_payload
 
