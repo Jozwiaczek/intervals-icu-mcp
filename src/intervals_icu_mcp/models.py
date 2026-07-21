@@ -186,6 +186,7 @@ class Activity(ActivitySummary):
     commute: bool | None = None
     trainer: bool | None = None
     indoor: bool | None = None
+    tags: list[str] | None = None
     analyzed: str | None = None
 
 

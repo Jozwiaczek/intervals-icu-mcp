@@ -280,6 +280,8 @@ def _event_to_dict(event: Event) -> dict[str, Any]:
         result["training_load"] = event.icu_training_load
     if event.carbs_per_hour:
         result["carbs_per_hour_g"] = event.carbs_per_hour
+    if event.tags:
+        result["tags"] = event.tags
     if event.training_availability:
         result["training_availability"] = event.training_availability
     if event.color:
@@ -322,6 +324,11 @@ async def create_event(
     training_load: Annotated[int | None, "Planned training load"] = None,
     carbs_per_hour: Annotated[
         int | None, "Planned carbohydrate intake in grams per hour (fueling target, CHO/h)"
+    ] = None,
+    tags: Annotated[
+        list[str] | None,
+        "Tags for the event (e.g., ['Long Run', 'Tempo']). Shown as #hashtags "
+        "on the calendar.",
     ] = None,
     end_date: Annotated[
         str | None,
@@ -417,6 +424,8 @@ async def create_event(
             event_data["icu_training_load"] = training_load
         if carbs_per_hour is not None:
             event_data["carbs_per_hour"] = carbs_per_hour
+        if tags is not None:
+            event_data["tags"] = tags
         if end_date is not None:
             event_data["end_date_local"] = end_date
         if normalized_availability is not None:
@@ -458,6 +467,11 @@ async def update_event(
     training_load: Annotated[int | None, "Updated training load"] = None,
     carbs_per_hour: Annotated[
         int | None, "Updated carbohydrate intake in grams per hour (fueling target, CHO/h)"
+    ] = None,
+    tags: Annotated[
+        list[str] | None,
+        "Updated tags (e.g., ['Long Run', 'Tempo']). Replaces the existing "
+        "tag list — pass the full desired set, or [] to clear.",
     ] = None,
     end_date: Annotated[str | None, "Updated end date (YYYY-MM-DD)"] = None,
     training_availability: Annotated[
@@ -527,6 +541,8 @@ async def update_event(
             event_data["icu_training_load"] = training_load
         if carbs_per_hour is not None:
             event_data["carbs_per_hour"] = carbs_per_hour
+        if tags is not None:
+            event_data["tags"] = tags
         if end_date is not None:
             event_data["end_date_local"] = end_date
         if normalized_availability is not None:
@@ -617,7 +633,7 @@ async def bulk_create_events(
         "JSON array of event objects. Required per event: start_date_local, "
         "name, category. Optional: description, event_type (activity discipline "
         "Ride/Run/Swim/…; raw `type` also accepted), moving_time, distance, "
-        "icu_training_load, end_date_local, training_availability, color, "
+        "icu_training_load, tags, end_date_local, training_availability, color, "
         "show_as_note, not_on_fitness_chart, show_on_ctl_line. See "
         "intervals-icu://event-categories for the category enum. " + WORKOUT_SYNTAX_HINT,
     ],

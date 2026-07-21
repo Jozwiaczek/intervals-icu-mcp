@@ -101,8 +101,8 @@ class TestEventTools:
         assert response["data"]["name"] == "Updated Workout"
         assert response["metadata"]["message"] == "Successfully updated event 1001"
 
-    async def test_update_event_sets_carbs_per_hour(self, mock_config, respx_mock):
-        """CHO/h fueling target is sent to the API and echoed in the response."""
+    async def test_update_event_sets_carbs_per_hour_and_tags(self, mock_config, respx_mock):
+        """CHO/h and tags are sent to the API and echoed in the response."""
         mock_ctx = MagicMock()
         mock_ctx.get_state = AsyncMock(return_value=mock_config)
 
@@ -115,6 +115,7 @@ class TestEventTools:
                     "start_date_local": "2026-07-26",
                     "category": "WORKOUT",
                     "carbs_per_hour": 40,
+                    "tags": ["Long Run"],
                 },
             )
         )
@@ -122,12 +123,17 @@ class TestEventTools:
         result = await update_event(
             event_id=1001,
             carbs_per_hour=40,
+            tags=["Long Run"],
             ctx=mock_ctx,
         )
 
         response = json.loads(result)
-        assert json.loads(route.calls.last.request.content) == {"carbs_per_hour": 40}
+        assert json.loads(route.calls.last.request.content) == {
+            "carbs_per_hour": 40,
+            "tags": ["Long Run"],
+        }
         assert response["data"]["carbs_per_hour_g"] == 40
+        assert response["data"]["tags"] == ["Long Run"]
 
     async def test_delete_event_safe_allows_future(self, mock_config, respx_mock):
         """Safe mode (default): future event is fetched, then deleted."""
